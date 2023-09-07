@@ -1,8 +1,19 @@
 <resources>
     <string name="app_name">GeoQuiz</string>
-    <string name="question_text">Camberra is the capital of Australia.</string>
+    <string name="question_cpp">Cal Poly Pomona was founded in 1928</string>
+    <string name="question_array">The average time complexity to delete an element from an array is O(n)</string>
+    <string name="question_hashmap">The average time complexity to access an element in a hashmap/dictionary is O(1)</string>
+    <string name="question_sml">Tail recursion or recursion is not available in SML</string>
+    <string name="question_mips">The J-Type instruction in MIPS is use for adding 0 to a variable</string>
+    <string name="question_https">Port 443 is globally used for HTTPS service</string>
+    <string name="question_python">The def keyword creates a class in Python</string>
+    <string name="question_java">Java is an object-oriented programming language</string>
+    <string name="question_xml">XML stands for Extensive Markup Language</string>
+    <string name="question_sql">SQL stands for Sequential Query Language</string>
+
     <string name="true_button">True</string>
     <string name="false_button">False</string>
     <string name="correct_toast">Correct!</string>
     <string name="incorrect_toast">Incorrect!</string>
+    <string name="next_button">Next</string>
 </resources>
