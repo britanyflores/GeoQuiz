@@ -1,61 +1,93 @@
 package com.bignerdranch.android.geoquiz
 
+import android.app.Activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
 import android.view.View
 import android.widget.Toast
 import com.bignerdranch.android.geoquiz.databinding.ActivityMainBinding
+import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 
+private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val questionBank = listOf(
-        Question(R.string.question_cpp, false),
-        Question(R.string.question_array, true),
-        Question(R.string.question_hashmap, true),
-        Question(R.string.question_sml, false),
-        Question(R.string.question_mips, false),
-        Question(R.string.question_https, true),
-        Question(R.string.question_python, false),
-        Question(R.string.question_java, true),
-        Question(R.string.question_xml, true),
-        Question(R.string.question_sql, false)
-    )
-    private var currentIndex = 0
+    private val quizViewModel: QuizViewModel by viewModels()
+
+    private val cheatLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        //Handle the result
+        if(result.resultCode == Activity.RESULT_OK){
+            quizViewModel.isCheater =
+                result.data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate(Bundle?) called")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
 
         binding.trueButton.setOnClickListener { view: View ->
             checkAnswer(true)
         }
 
         binding.falseButton.setOnClickListener { view: View ->
-        checkAnswer(false)
+            checkAnswer(false)
         }
 
-        binding.nextButton.setOnClickListener{view: View ->
-            currentIndex = (currentIndex+1) % questionBank.size
+        binding.nextButton.setOnClickListener { view: View ->
+            quizViewModel.moveToNext()
             updateQuestion()
+        }
+        binding.cheatButton.setOnClickListener {view: View ->
+            //Start CheatActivity
+            val answerIsTrue = quizViewModel.currentQuestionAnswer
+            val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
+            cheatLauncher.launch(intent)
         }
         updateQuestion()
     }
+
+    override fun onStart(){
+        super.onStart()
+        Log.d(TAG, "onStart() called")
+    }
+    override fun onResume(){
+        super.onResume()
+        Log.d(TAG, "onResume() called")
+    }
+    override fun onPause(){
+        super.onPause()
+        Log.d(TAG, "onPause() called")
+    }
+    override fun onStop(){
+        super.onStop()
+        Log.d(TAG, "onStop() called")
+    }
+    override fun onDestroy(){
+        super.onDestroy()
+        Log.d(TAG, "onDestroy() called")
+    }
     private fun updateQuestion(){
-        val questionTextResId = questionBank[currentIndex].textResId
+        val questionTextResId = quizViewModel.currentQuestionText
         binding.questionTextView.setText(questionTextResId)
     }
 
     private fun checkAnswer(userAnswer: Boolean){
-        val correctAnswer = questionBank[currentIndex].answer
+        val correctAnswer = quizViewModel.currentQuestionAnswer
 
-        val messageResId = if (userAnswer == correctAnswer) {
-            R.string.correct_toast
-        } else {
-            R.string.incorrect_toast
+        val messageResId = when {
+            quizViewModel.isCheater -> R.string.judgment_toast
+            userAnswer == correctAnswer -> R.string.correct_toast
+            else -> R.string.incorrect_toast
         }
 
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
